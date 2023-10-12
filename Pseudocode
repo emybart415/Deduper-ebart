@@ -1,0 +1,82 @@
+Deduper Pseudocode
+---------------------------------------------------------------------------------------------
+Outline Problem
+---------------------------------------------------------------------------------------------
+Input: SAM file
+Output: SAM but Remove all PCR duplicates
+SAM:
+- Tab-delimited text format
+- @Header section(opt)
+- Alignment Section
+- 11 mandatory fields:
+    https://www.google.com/url?sa=i&url=http%3A%2F%2Fzyxue.github.io%2F2017%2F09%2F26%2Fsam-format-example.html&psig=AOvVaw1Q5S63-iU08Dk2OSeyi8T5&ust=1696987391943000&source=images&cd=vfe&opi=89978449&ved=0CBAQjRxqFwoTCMD44ueo6oEDFQAAAAAdAAAAABAY
+
+Before conitnuing to rpoccess the aligment files, PCR duplicates need to be removed. Having duplicates can create
+false discovery rates. The end goal is to have a single copy of each read. 
+---------------------------------------------------------------------------------------------
+Functions
+---------------------------------------------------------------------------------------------
+def: Check Strandedness
+    ```This funion will take the col2 flag and determine if it is a read from the forward or reverse strand```
+		input: Col2 = FLAG
+		Function: checks if entry is strand+ (0) or strand- (1)
+
+EX:
+INPUT: FLAG value: 0 (16-bit binary: 0000000000000000)
+OUTPUT: Forward strand (+)
+INPUT: FLAG value: 16 (16-bit binary: 0000000000010000)
+OUTPUT: Reverse strand (-)
+
+def: Adjust for soft clipping
+    ```This function will use the (+) or (-) qualities of the read and adjust for softclipping```
+    input: Col6 = CIGAR (see https://jef.works/blog/2017/03/28/CIGAR-strings-for-dummies/)
+    Function: Adjusts leftmost position for (+) strands and rightmost position for (-) strands based on what CIGAR says
+
+Ex:
+INPUT: CIGAR string: "3S2M1D2I4M"
+Initial Position: 10
+OUTPUT:Adjusted Position: 19
+---------------------------------------------------------------------------------------------
+Pseudocode
+---------------------------------------------------------------------------------------------
+Go line by line
+Find all lines that start with @ and move straight to output file
+Sort SAM file by coordinate (samtools sort)
+Go line by line
+Split file by tab and assign variable names to columns (ones with YES) 
+- 1: QNAME (str) (UMI) YES
+- 2: FLAG (int)(strand specific) YES
+- 3: RNAME (str)(chrom) YES
+- 4: POS (int) YES
+- 5: MAPQ (int)
+- 6: CIGAR (str)(soft clipping) YES
+- 7: RNEXT (str)
+- 8: PNEXT (str)
+- 9: TLEN (int)
+- 10: SEQ (str)
+- 11: QUAL (str)
+
+1. Add compare UMIS to a known index file
+- set up a dictionary to storeknown UMIS (I have been hearing this should be a "set" not a dictionary)
+- Open known UMI file and retreive data
+- compare each UMI in same file to known UMI dictionary removing the unmatched ones
+- If it is in the known index, add to dictionary 
+
+2. Compare chromosome to previous read
+- If it is not the same, skip the rest of the code and move on
+- if it is the same, continue
+
+3. Call on forward or reverse strand function to determine the read orientation
+
+4. Call on the soft clipping adjustment function to find the actual position
+
+5. Compare position to previous position
+- If it is not the same, write the read to the output file
+- if it is the same, ignore
+- Which read do we decide to write if it is the same? Highest quality?
+
+
+
+
+
+
