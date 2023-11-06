@@ -1,0 +1,14 @@
+Summary:
+
+Total Number of Reads Parsed:
+18186410
+
+Total Number of Reads Considered Duplicates:
+4467362
+
+Total Number of Reads With Unknown UMIs:
+0
+
+Percent of Total Reads Encountered That Were Discarded Due to Unknown UMI or Suspected Duplicate:
+24.5642872892451%
+

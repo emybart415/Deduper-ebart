@@ -1,0 +1,7 @@
+Bash Commands To Look Over De-duped Output file
+
+How many header lines:
+grep -c "^@" C1_SE_uniqAlign_sorted_deduped.sam
+
+How many unique reads per chromosome:
+grep -v "^@" C1_SE_uniqAlign_sorted_deduped.sam | cut -f3 | sort | uniq -c > google.txt
